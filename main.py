@@ -9,6 +9,7 @@ from discord_slash import SlashCommand
 from discord_slash import SlashContext
 from discord_slash.utils import manage_commands
 from discord_slash.utils.manage_commands import create_option, create_choice
+from itertools import cycle
 # ^^ All of our necessary imports
 import wikipediaapi
 
@@ -20,14 +21,18 @@ client = commands.Bot(
 )  #put your own prefix here, but it wont matter since slash commands default to /
 slash = SlashCommand(client, sync_commands=True)
 
+status = cycle(['Super', 'Idol'])
+
 
 @client.event
 async def on_ready():
-    await client.change_presence(
-        status=discord.Status.online, activity=discord.Game(name='Discord')
-    )  #Bot status, change this to anything you like
-    print("Bot online"
-          )  #will print "bot online" in the console when the bot is online
+    change_status.start()
+    print("Your bot is ready")
+
+
+@tasks.loop(seconds=10)
+async def change_status():
+    await client.change_presence(activity=discord.Game(next(status)))
 
 
 #Send message "pong" when user sends /ping
